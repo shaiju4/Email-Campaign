@@ -83,3 +83,26 @@ Usage
 5. Admin receives a campaign report email  
 ---
 
+Complete Flow Summary
+-----
+
+Admin uploads recipients (CSV)
+        ↓
+Admin creates campaign
+        ↓
+Celery executes campaign
+        ↓
+Emails sent & logged
+        ↓
+Live dashboard updates
+        ↓
+Campaign completed
+        ↓
+CSV report generated
+        ↓
+Admin notified via email
+
+
+Note
+----
+Draft campaigns are currently not handled in this implementation.
