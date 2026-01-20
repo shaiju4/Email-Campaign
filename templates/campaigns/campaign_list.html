@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>Campaign Dashboard</h2>
+
+{% if user.is_staff %}
+<div style="margin-bottom: 15px;">
+    <a href="{% url 'upload_recipient' %}">Upload Recipients (CSV)</a> |
+    <a href="{% url 'create_campaign' %}">Create New Campaign</a>
+</div>
+{% endif %}
+
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Subject</th>
+            <th>Scheduled Time</th>
+            <th>Status</th>
+            <th>Sent</th>
+            <th>Failed</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for campaign in campaigns %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+
+            <td>
+                {% if user.is_staff %}
+                    <a href="{% url 'campaign_detail' campaign.id %}">
+                        {{ campaign.name }}
+                    </a>
+                {% else %}
+                    {{ campaign.name }}
+                {% endif %}
+            </td>
+
+            <td>{{ campaign.subject }}</td>
+            <td>{{ campaign.scheduled_time }}</td>
+            <td id="status-{{ campaign.id }}">{{ campaign.status }}</td>
+            <td id="sent-{{ campaign.id }}">{{ campaign.sent_count }}</td>
+            <td id="failed-{{ campaign.id }}">{{ campaign.failed_count }}</td>
+
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="7">No campaigns found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+    let polling = setInterval(() => {
+    fetch("{% url 'campaign_list_status_api' %}")
+        .then(res => res.json())
+        .then(data => {
+            let anyRunning = false;
+            console.log("success");
+
+            data.campaigns.forEach(campaign => {
+                const statusEl = document.getElementById(`status-${campaign.id}`);
+                const sentEl = document.getElementById(`sent-${campaign.id}`);
+                const failedEl = document.getElementById(`failed-${campaign.id}`);
+
+                if (statusEl) statusEl.innerText = campaign.status;
+                if (sentEl) sentEl.innerText = campaign.sent_count;
+                if (failedEl) failedEl.innerText = campaign.failed_count;
+                if (campaign.status === "IN_PROGRESS" || campaign.status === "SCHEDULED") {
+                    console.log(campaign.status)
+                    anyRunning = true;
+                }
+            });
+
+            if (!anyRunning) {
+                clearInterval(polling);
+            }
+        });
+}, 100);
+
+</script>
+
+
+{% endblock %}

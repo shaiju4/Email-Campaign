@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Email Campaign System{% endblock %}</title>
+</head>
+<body>
+
+<!-- GLOBAL HEADER -->
+<header>
+    <h1>Email Campaign Management</h1>
+
+    {% if user.is_authenticated %}
+        <span>Welcome, {{ user.username }}</span> |
+        <a href="{% url 'logout' %}">Logout</a>
+    {% endif %}
+
+    <hr>
+</header>
+
+<!-- PAGE CONTENT -->
+{% block content %}{% endblock %}
+
+</body>
+</html>
